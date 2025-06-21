@@ -29,15 +29,14 @@ class UserController extends Controller
 
 
 
-     public function index(Request $request)
-    {
-        $columns = ['id','name', 'email', 'uuid', 'created_at'];
-        $query = User::query();
-        $query = $this->find($request, $query, $columns);
-        $results = $this->paginate($request, $query, $columns);
-        return response()->json($results);
-    }
-
+  public function index(Request $request)
+{
+    $searchableColumns = ['id', 'name', 'email'];
+    $query = User::query();
+    $query = $this->find($request, $query, $searchableColumns);
+    $results = $this->paginate($request, $query, $searchableColumns);
+    return response()->json($results);
+}
 public function store(Request $request)
 {
     // Validar los datos del request
