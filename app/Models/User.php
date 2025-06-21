@@ -37,6 +37,9 @@ class User extends Authenticatable implements LaratrustUser
         'remember_token',
     ];
 
+     protected $appends = ['all_permissions'];
+
+
     /**
      * Get the attributes that should be cast.
      *
@@ -50,6 +53,10 @@ class User extends Authenticatable implements LaratrustUser
         ];
     }
 
- 
+   public function getAllPermissionsAttribute()
+    {
+        // Puedes personalizar esta consulta según tu lógica de permisos
+        return $this->allPermissions()->unique('id')->values();
+    }
 
 }

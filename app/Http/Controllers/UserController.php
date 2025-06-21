@@ -23,7 +23,7 @@ class UserController extends Controller
     public function show(string $uuid)
     {
         $query = User::query();
-        $data = $this->retrieveByUuid($query, $uuid);
+        $data = $this->retrieveById($query, $uuid);
         return response()->json(['data' => $data]);
     }
 
@@ -71,13 +71,15 @@ public function update(Request $request, $uuid)
 {
 
     $query=User::query();
-    $user = $this->retrieveByUuid($query,$uuid);
+    $user = $this->retrieveByid($query,$uuid);
 
     // Validar los datos del request
     $rules = [
         'name' => 'sometimes|required|string|max:255',
         'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+        'password_confirmation' => 'required_with:password',
         'password' => ['sometimes', 'required', new PasswordValidationRule, 'confirmed'],
+    
     ];
 
     $messages = [
@@ -110,7 +112,7 @@ public function update(Request $request, $uuid)
 public function destroy(string $uuid)
 {
     $query = User::query();
-    $response = $this->eraseByUuid($query, $uuid);
+    $response = $this->eraseById($query, $uuid);
 
     if ($response->getStatusCode() != 200) {
         return $response;

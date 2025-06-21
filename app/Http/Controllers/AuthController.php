@@ -56,7 +56,7 @@ class AuthController extends Controller
         if ($user) {
             // Carga roles y permisos relacionados
             $user->load('roles');
-            $user->all_permissions = $user->allPermissions()->unique('id')->values();
+           
 
             $response = [
                 'success' => true,
