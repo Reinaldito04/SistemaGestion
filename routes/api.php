@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ProductController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HelpDeskController;
 use App\Http\Controllers\RabbitMQController;
+use App\Http\Controllers\PermisionController;
 use App\Http\Controllers\Employees\EmployeesController;
 use App\Http\Controllers\Employees\DepartmentController;
 
@@ -41,7 +43,28 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::post('/{id}/assign-roles', [UserController::class, 'assignRoles']);
+        Route::post('/{id}/revoke-roles', [UserController::class, 'revokeRoles']);
     });
+
+
+       Route::group(['prefix' => 'permissions'], function() {
+
+        Route::get('/', [PermisionController::class, 'index']);
+        Route::get('/{id}', [PermisionController::class, 'show']);
+    });
+
+      Route::group(['prefix' => 'roles'], function() {
+
+        Route::get('/', [RoleController::class, 'index']);
+        Route::get('/{id}', [RoleController::class, 'show']);
+        Route::post('/{roleId}/assign-permissions', [RoleController::class, 'assignPermissions']);
+        Route::post('/{roleId}/revoke-permissions', [RoleController::class, 'revokePermissions']);
+        Route::post('/', [RoleController::class, 'store']);
+        Route::put('/{id}', [RoleController::class, 'update']);
+
+    });
+
 
    
 });

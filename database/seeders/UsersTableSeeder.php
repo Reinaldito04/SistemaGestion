@@ -39,7 +39,7 @@ class UsersTableSeeder extends Seeder
                 'name'              => 'Marcanoaar',
                 'email'             => 'marcanoaar@sistema.net.ve',
                 'email_verified_at' => $now,
-                'password'          => bcrypt('1233456789'),
+                'password'          => bcrypt('123456789'),
                 'role'          => 'supervisor',
             ],
             [
@@ -47,7 +47,7 @@ class UsersTableSeeder extends Seeder
                 'name'              => 'Acecedocs',
                 'email'             => 'acecedocs@sistema.net.ve',
                 'email_verified_at' => $now,
-                'password'          => bcrypt('1233456789'),
+                'password'          => bcrypt('123456789'),
                 'role'          => 'analista',
             ],
             [
@@ -55,7 +55,7 @@ class UsersTableSeeder extends Seeder
                 'name'              => 'SUPER-ADMINISTRADOR',
                 'email'             => 'superadmin@sistema.net.ve',
                 'email_verified_at' => $now,
-                'password'          => bcrypt('1233456789'),
+                'password'          => bcrypt('123456789'),
                 'role'          => 'superadministrador',
             ],
         ];

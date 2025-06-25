@@ -14,16 +14,23 @@ return [
     'roles_structure' => [
         'superadministrador' => [
               'users' => 'b,r,e,a,d',
+              'roles' => 'b,r,e,a,d',
+              'permissions' => 'b,r,e,a,d',
         ],
         'administrador' => [
           'users' => 'b,r,e,a,d',
-            
+          'roles' => 'b,r,e,a,d',
+          'permissions' => 'b,r',
         ],
         'supervisor' => [
-              'users' => 'r',
+            'users' => 'r',
+            'roles' => 'r',
+            'permissions' => 'r',
         ],
         'analista' => [
-             'users' => 'r',
+            'users' => 'r',
+            'roles' => 'r',
+            'permissions' => 'r',
         ],
     ],
 

@@ -144,41 +144,53 @@ trait ControllerTrait
     public function retrieveByUuid(Builder $query, $uuid)
     {
         if (!$this->isUuid($uuid)) {
-            throw new \InvalidArgumentException('UUID invalido: ' . $uuid);
+            return response()->json(['message' => 'UUID inválido'], 400);
         }
         $resource = $query->where('uuid', $uuid)->first();
         if (!$resource) {
-            throw new \Exception('Registro no encontrado');
+            return response()->json(['message' => 'Registro no encontrado'], 404);
         }
         if ($resource->offsetExists('id')) {
             $resource->makeHidden('id');
         }
         return $resource;
     }
-
     public function retrieveById(Builder $query, $id)
     {
         if (!$this->isId($id)) {
-            throw new \InvalidArgumentException('id invalido: ' . $id);
+            // Lanza una excepción, no retornes un response
+            throw new \InvalidArgumentException('ID inválido: ' . $id);
         }
         $resource = $query->where('id', $id)->first();
         if (!$resource) {
             throw new \Exception('Registro no encontrado');
         }
-
         return $resource;
     }
 
     public function eraseByUuid(Builder $query, $uuid)
     {
         if (!$this->isUuid($uuid)) {
-            throw new \InvalidArgumentException('UUID invalido: ' . $uuid);
+            return response()->json(['message' => 'UUID inválido'], 400);
         }
         $resource = $query->where('uuid', $uuid)->first();
         if (!$resource) {
-            throw new \Exception('Registro no encontrado');
+            return response()->json(['message' => 'Registro no encontrado'], 404);
         }
         $resource->delete();
         return response()->json(['message' => 'Registro eliminado correctamente']);
     }
+
+    public function eraseById(Builder $query, $id)
+{
+    if (!$this->isId($id)) {
+        return response()->json(['message' => 'ID inválido'], 400);
+    }
+    $resource = $query->where('id', $id)->first();
+    if (!$resource) {
+      return response()->json(['message' => 'Registro no encontrado'], 404);
+    }
+    $resource->delete();
+    return response()->json(['message' => 'Registro eliminado correctamente']);
+}
 }
