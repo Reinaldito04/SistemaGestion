@@ -12,8 +12,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HelpDeskController;
 use App\Http\Controllers\RabbitMQController;
 use App\Http\Controllers\PermisionController;
-use App\Http\Controllers\Employees\EmployeesController;
-use App\Http\Controllers\Employees\DepartmentController;
+use App\Http\Controllers\DepartmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -66,6 +65,15 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('/{id}', [RoleController::class, 'update']);
         Route::delete('/{id}', [RoleController::class, 'destroy']);
 
+    });
+
+    Route::group(['prefix' => 'departments'], function() {
+
+        Route::get('/', [DepartmentController::class, 'index']);
+        Route::get('/{id}', [DepartmentController::class, 'show']);
+        Route::post('/', [DepartmentController::class, 'store']);
+        Route::put('/{id}', [DepartmentController::class, 'update']);
+        Route::delete('/{id}', [DepartmentController::class, 'destroy']);
     });
 
 

@@ -16,21 +16,25 @@ return [
               'users' => 'b,r,e,a,d',
               'roles' => 'b,r,e,a,d',
               'permissions' => 'b,r,e,a,d',
+              'departments' => 'b,r,e,a,d',
         ],
         'administrador' => [
           'users' => 'b,r,e,a,d',
           'roles' => 'b,r,e,a,d',
           'permissions' => 'b,r',
+          'departments' => 'b,r,e,a,d',
         ],
         'supervisor' => [
             'users' => 'r',
             'roles' => 'r',
             'permissions' => 'r',
+            'departments' => 'r',
         ],
         'analista' => [
             'users' => 'r',
             'roles' => 'r',
             'permissions' => 'r',
+            'departments' => 'r',
         ],
     ],
 
