@@ -45,6 +45,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::delete('/{id}', [UserController::class, 'destroy']);
         Route::post('/{id}/assign-roles', [UserController::class, 'assignRoles']);
         Route::post('/{id}/revoke-roles', [UserController::class, 'revokeRoles']);
+        Route::post('/{id}/assign-permissions', [UserController::class, 'assignPermissions']);
+        Route::post('/{id}/revoke-permissions', [UserController::class, 'revokePermissions']);
     });
 
 
@@ -62,6 +64,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/{roleId}/revoke-permissions', [RoleController::class, 'revokePermissions']);
         Route::post('/', [RoleController::class, 'store']);
         Route::put('/{id}', [RoleController::class, 'update']);
+        Route::delete('/{id}', [RoleController::class, 'destroy']);
 
     });
 

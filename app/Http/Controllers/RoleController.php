@@ -139,4 +139,18 @@ public function revokePermissions(Request $request, $roleId)
         'message' => 'Permisos procesados exitosamente.'
     ]);
 }
+
+public function destroy(string $uuid)
+{
+     $query = Role::query();
+    $query->whereNotIn('name', ['superadministrador']);
+
+    $response = $this->eraseById($query, $uuid);
+
+    if ($response->getStatusCode() != 200) {
+        return $response;
+    }
+
+    return response()->json(['message' => 'Rol eliminado correctamente']);
+}
 }

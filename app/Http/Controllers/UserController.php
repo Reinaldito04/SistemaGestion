@@ -237,5 +237,80 @@ public function revokeRoles(Request $request, $userId)
     ]);
 }
 
+public function assignPermissions(Request $request, $userId)
+{
+    $request->validate([
+        'permissions' => 'required|array|min:1',
+        'permissions.*' => 'integer|exists:permissions,id',
+    ]);
+
+    $user = User::whereDoesntHave('roles', function($q) {
+        $q->where('name', 'superadministrador');
+    })->where('id', $userId)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+
+    $permissions = Permission::whereIn('id', $request->permissions)->get();
+
+    $already = [];
+    $toAssign = [];
+    foreach ($permissions as $permission) {
+        if ($user->hasPermission($permission->name)) { // Laratrust recomienda usar el nombre
+            $already[] = $permission->id;
+        } else {
+            $toAssign[] = $permission->id;
+        }
+    }
+
+    if (!empty($toAssign)) {
+        $user->syncPermissionsWithoutDetaching($toAssign);
+    }
+
+    return response()->json([
+        'assigned' => $toAssign,
+        'already_had' => $already,
+        'message' => 'Permisos procesados exitosamente.'
+    ]);
+}
+
+public function revokePermissions(Request $request, $userId)
+{
+    $request->validate([
+        'permissions' => 'required|array|min:1',
+        'permissions.*' => 'integer|exists:permissions,id',
+    ]);
+
+    $user = User::whereDoesntHave('roles', function($q) {
+        $q->where('name', 'superadministrador');
+    })->where('id', $userId)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+
+    $permissions = Permission::whereIn('id', $request->permissions)->get();
+
+    $revoked = [];
+    $not_had = [];
+    foreach ($permissions as $permission) {
+        if ($user->hasPermission($permission->name)) {
+            $revoked[] = $permission->id;
+        } else {
+            $not_had[] = $permission->id;
+        }
+    }
+
+    if (!empty($revoked)) {
+        $user->detachPermissions($revoked);
+    }
+
+    return response()->json([
+        'revoked' => $revoked,
+        'not_had' => $not_had,
+        'message' => 'Permisos procesados exitosamente.'
+    ]);
+}
 
 }
