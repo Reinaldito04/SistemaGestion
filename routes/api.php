@@ -2,9 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PlantController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
@@ -75,6 +77,23 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('/{id}', [DepartmentController::class, 'update']);
         Route::delete('/{id}', [DepartmentController::class, 'destroy']);
     });
+    Route::group(['prefix' => 'areas'], function() {
+
+        Route::get('/', [AreaController::class, 'index']);
+        Route::get('/{id}', [AreaController::class, 'show']);
+        Route::post('/', [AreaController::class, 'store']);
+        Route::put('/{id}', [AreaController::class, 'update']);
+        Route::delete('/{id}', [AreaController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'plants'], function() {
+
+        Route::get('/', [PlantController::class, 'index']);
+        Route::get('/{id}', [PlantController::class, 'show']);
+        Route::post('/', [PlantController::class, 'store']);
+        Route::put('/{id}', [PlantController::class, 'update']);
+        Route::delete('/{id}', [PlantController::class, 'destroy']);
+    });
+
 
 
    

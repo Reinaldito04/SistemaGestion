@@ -25,62 +25,103 @@ trait ControllerTrait
      * Si alguna columna del request no es válida, lanza excepción y muestra las válidas.
      * El request es validado antes de ejecutar la lógica.
      */
-    public function find(Request $request, Builder $query, array $searchableColumns)
-    {
-        $this->validateFindRequest($request, $searchableColumns);
+public function find(Request $request, Builder $query, array $searchableColumns, array $searchablePeriodColumns = [])
+{
+    $this->validateFindRequest($request, $searchableColumns, $searchablePeriodColumns);
 
-        $searchInput = $request->input('search_input', null);
+    $searchInput = $request->input('search_input', null);
 
-        $requestedColumns = $request->input('search_columns', []);
-        if (is_string($requestedColumns)) {
-            $requestedColumns = [$requestedColumns];
-        }
-        $requestedColumns = array_filter((array)$requestedColumns, fn($col) => !empty($col));
+    $requestedColumns = $request->input('search_columns', []);
+    if (is_string($requestedColumns)) {
+        $requestedColumns = [$requestedColumns];
+    }
+    $requestedColumns = array_filter((array)$requestedColumns, fn($col) => !empty($col));
 
-        if (empty($requestedColumns)) {
-            $searchColumns = $searchableColumns;
-        } else {
-            $searchColumns = array_intersect($requestedColumns, $searchableColumns);
-
-            // Esto ya no es necesario, porque el validateFindRequest lo valida antes
-            // $invalidColumns = array_diff($requestedColumns, $searchableColumns);
-            // if (count($invalidColumns)) {
-            //     throw new \InvalidArgumentException(
-            //         'Columna(s) no válida(s) en search_columns: ' . implode(', ', $invalidColumns) .
-            //         '. Las columnas válidas son: ' . implode(', ', $searchableColumns)
-            //     );
-            // }
-        }
-
-        if ($searchInput !== null && trim($searchInput) !== '' && !empty($searchColumns)) {
-            $query->where(function($query) use ($searchColumns, $searchInput) {
-                foreach ($searchColumns as $column) {
-                    $query->orWhereRaw("LOWER($column) LIKE ?", ['%' . strtolower($searchInput) . '%']);
-                }
-            });
-        }
-
-        return $query;
+    if (empty($requestedColumns)) {
+        $searchColumns = $searchableColumns;
+    } else {
+        $searchColumns = array_intersect($requestedColumns, $searchableColumns);
     }
 
+    // Búsqueda tipo LIKE para search_input
+    if ($searchInput !== null && trim($searchInput) !== '' && !empty($searchColumns)) {
+        $query->where(function($query) use ($searchColumns, $searchInput) {
+            foreach ($searchColumns as $column) {
+                $query->orWhereRaw("LOWER($column) LIKE ?", ['%' . strtolower($searchInput) . '%']);
+            }
+        });
+    }
+
+    // Filtros de periodo 
+    if (!empty($searchablePeriodColumns) && $request->filled('period_filters') && is_array($request->input('period_filters'))) {
+        foreach ($request->input('period_filters') as $filter) {
+            $column = $filter['column'] ?? null;
+            $start = $filter['start'] ?? null;
+            $end   = $filter['end'] ?? null;
+            if ($column && in_array($column, $searchablePeriodColumns)) {
+                if ($start && $end) {
+                    $query->whereBetween($column, [
+                        $start . ' 00:00:00',
+                        $end . ' 23:59:59'
+                    ]);
+                } elseif ($start) {
+                    $query->where($column, '>=', $start . ' 00:00:00');
+                } elseif ($end) {
+                    $query->where($column, '<=', $end . ' 23:59:59');
+                }
+            }
+        }
+    }
+
+    return $query;
+}
     /**
      * Valida los campos para el método find
      */
-        protected function validateFindRequest(Request $request, array $columns)
-        {
-            $rules = [
-                'search_columns'    => ['sometimes', 'nullable', 'array'],
-                'search_columns.*'  => ['sometimes', 'nullable', 'string', Rule::in($columns)],
-                'search_input'      => ['sometimes', 'nullable', 'string'],
-            ];
+   protected function validateFindRequest(Request $request, array $columns, array $periodColumns = [])
+{
+    $rules = [
+        'search_columns'    => ['sometimes', 'nullable', 'array'],
+        'search_columns.*'  => ['sometimes', 'nullable', 'string', Rule::in($columns)],
+        'search_input'      => ['sometimes', 'nullable', 'string'],
+    ];
 
-            $messages = [
-                'search_columns.*.in' => 'La columna ":input" no es válida. Columnas válidas: ' . implode(', ', $columns),
-            ];
+    $messages = [
+        'search_columns.*.in' => 'La columna ":input" no es válida. Columnas válidas: ' . implode(', ', $columns),
+    ];
 
-            $request->validate($rules, $messages);
+    if (!empty($periodColumns)) {
+        $rules['period_filters'] = ['sometimes', 'nullable', 'array'];
+        $rules['period_filters.*.column'] = ['required_with:period_filters', 'string', Rule::in($periodColumns)];
+        $rules['period_filters.*.start']  = ['nullable', 'date_format:Y-m-d'];
+        $rules['period_filters.*.end']    = ['nullable', 'date_format:Y-m-d', 'after_or_equal:period_filters.*.start'];
+
+        $messages['period_filters.*.column.in'] = 'La columna de periodo ":input" no es válida. Columnas válidas: ' . implode(', ', $periodColumns);
+        $messages['period_filters.*.start.date_format'] = 'La fecha de inicio debe tener el formato Y-m-d.';
+        $messages['period_filters.*.end.date_format'] = 'La fecha de fin debe tener el formato Y-m-d.';
+        $messages['period_filters.*.end.after_or_equal'] = 'La fecha de fin debe ser igual o posterior a la fecha de inicio.';
+    }
+
+    // Validación adicional: si hay columna, debe haber al menos start o end
+    $data = $request->all();
+    if (!empty($periodColumns) && !empty($data['period_filters']) && is_array($data['period_filters'])) {
+        foreach ($data['period_filters'] as $idx => $filter) {
+            if (
+                !empty($filter['column']) &&
+                empty($filter['start']) &&
+                empty($filter['end'])
+            ) {
+                // Lanza error de validación para este índice
+                $msg = "En el filtro de periodo #".($idx+1).", si especificas la columna debes indicar al menos una de las fechas (start o end).";
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "period_filters.$idx" => [$msg]
+                ]);
+            }
         }
+    }
 
+    $request->validate($rules, $messages);
+}
     public function isUuid($string)
     {
         return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $string);
