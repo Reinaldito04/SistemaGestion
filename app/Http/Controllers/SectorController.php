@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Plant;
 use Illuminate\Http\Request;
 use App\Traits\ControllerTrait;
 use Laratrust\Models\Permission;
+use App\Models\Sector;
 
-
-class PlantController extends Controller
+class SectorController extends Controller
 {
     
     use ControllerTrait;
 
 
        public function __construct() {
-      
-        $this->middleware('permission:plants-browse', ['only' => ['index']]);
-        $this->middleware('permission:plants-read', ['only' => ['show']]);
-        $this->middleware('permission:plants-edit', ['only' => ['update']]);
-        $this->middleware('permission:plants-delete', ['only' => ['destroy']]);
+
+        $this->middleware('permission:sectors-browse', ['only' => ['index']]);
+        $this->middleware('permission:sectors-read', ['only' => ['show']]);
+        $this->middleware('permission:sectors-edit', ['only' => ['update']]);
+        $this->middleware('permission:sectors-delete', ['only' => ['destroy']]);
     }
 
 
@@ -27,18 +26,18 @@ class PlantController extends Controller
     {
       $aditionalValidation = $request->validate([
             'filter_active' => 'boolean',
-            'filter_area_id' => 'integer|exists:areas,id',
+            'filter_plant_id' => 'integer|exists:areas,id',
           
         ]);
         $searchableColumns = ['id', 'name', 'display_name', 'description'];
-        $query = Plant::query();
+        $query = Sector::query();
 
         if (isset($aditionalValidation['filter_active'])) {
             $query->where('active', $aditionalValidation['filter_active']);
         }
 
-        if (isset($aditionalValidation['filter_area_id'])) {
-            $query->where('area_id', $aditionalValidation['filter_area_id']);
+        if (isset($aditionalValidation['filter_plant_id'])) {
+            $query->where('plant_id', $aditionalValidation['filter_plant_id']);
         }
 
         $query = $this->find($request, $query, $searchableColumns);
@@ -48,7 +47,7 @@ class PlantController extends Controller
 
     public function show($id)
     {
-        $query = Plant::query();
+        $query = Sector::query();
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);
@@ -62,15 +61,15 @@ class PlantController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name',
+            'name' => 'required|string|max:255|unique:sectors,name',
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
-            'area_id' => 'required|integer|exists:areas,id',
+            'plant_id' => 'required|integer|exists:plants,id',
             'active' => 'boolean',
         ]);
         
 
-        $plant = Plant::create($request->only(['name', 'display_name', 'description', 'area_id', 'active']));
+        $plant = Sector::create($request->only(['name', 'display_name', 'description', 'plant_id', 'active']));
         
         
         return response()->json(['data' => $plant], 201);
@@ -79,23 +78,23 @@ class PlantController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name,' . $id,
+            'name' => 'required|string|max:255|unique:sectors,name,' . $id,
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
             'active' => 'boolean',
         ]);
-        $plant = Plant::find($id);
+        $plant = Sector::find($id);
     if (!$plant) {
-        return response()->json(['message' => 'Planta no encontrada'], 404);
+        return response()->json(['message' => 'Sector no encontrado'], 404);
     }
     $plant->update($request->only(['name', 'display_name', 'description', 'active']));
     return response()->json(['data' => $plant,
-        'message' => 'Planta actualizada exitosamente.'], 200);
+        'message' => 'Sector actualizado exitosamente.'], 200);
     }
 
 public function destroy(string $uuid)
 {
-     $query = Plant::query();
+     $query = Sector::query();
 
     $response = $this->eraseById($query, $uuid);
 
@@ -103,7 +102,6 @@ public function destroy(string $uuid)
         return $response;
     }
 
-    return response()->json(['message' => 'Planta eliminada correctamente']);
+    return response()->json(['message' => 'Sector eliminado correctamente']);
 }
 }
-

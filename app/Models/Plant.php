@@ -13,6 +13,8 @@ class Plant extends Model
     protected $casts = [
          'active' => 'boolean',
     ];
+
+    protected $appends = ['area_name', 'area_display_name'];
     /**
      * Get the area that owns the plant.
      */
@@ -20,4 +22,14 @@ class Plant extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+   public function getAreaNameAttribute()
+    {
+        return $this->area ? $this->area->name : null;
+    }
+    public function getAreaDisplayNameAttribute()
+     {
+          return $this->area ? $this->area->display_name : null;
+     }
+    
 }

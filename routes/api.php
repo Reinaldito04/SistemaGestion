@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SectorController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CategoryController;
@@ -93,6 +94,15 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('/{id}', [PlantController::class, 'update']);
         Route::delete('/{id}', [PlantController::class, 'destroy']);
     });
+        Route::group(['prefix' => 'sectors'], function() {
+
+        Route::get('/', [SectorController::class, 'index']);
+        Route::get('/{id}', [SectorController::class, 'show']);
+        Route::post('/', [SectorController::class, 'store']);
+        Route::put('/{id}', [SectorController::class, 'update']);
+        Route::delete('/{id}', [SectorController::class, 'destroy']);
+    });
+    
 
 
 

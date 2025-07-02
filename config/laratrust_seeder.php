@@ -18,6 +18,7 @@ return [
               'permissions' => 'b,r,e,a,d',
               'departments' => 'b,r,e,a,d',
               'plants' => 'b,r,e,a,d',
+              'sectors' => 'b,r,e,a,d',
         ],
         'administrador' => [
           'users' => 'b,r,e,a,d',
@@ -25,6 +26,7 @@ return [
           'permissions' => 'b,r',
           'departments' => 'b,r,e,a,d',
             'plants' => 'b,r,e,a,d',
+            'sectors' => 'b,r,e,a,d',
         ],
         'supervisor' => [
             'users' => 'r',
@@ -32,6 +34,7 @@ return [
             'permissions' => 'r',
             'departments' => 'r',
             'plants' => 'r',
+            'sectors' => 'r',
         ],
         'analista' => [
             'users' => 'r',
@@ -39,6 +42,7 @@ return [
             'permissions' => 'r',
             'departments' => 'r',
             'plants' => 'r',
+            'sectors' => 'r',
         ],
     ],
 
