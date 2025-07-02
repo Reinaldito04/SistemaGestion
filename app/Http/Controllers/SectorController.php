@@ -27,6 +27,7 @@ class SectorController extends Controller
       $aditionalValidation = $request->validate([
             'filter_active' => 'boolean',
             'filter_plant_id' => 'integer|exists:areas,id',
+            'filter_area_id' => 'integer|exists:areas,id',
           
         ]);
         $searchableColumns = ['id', 'name', 'display_name', 'description'];
@@ -38,6 +39,12 @@ class SectorController extends Controller
 
         if (isset($aditionalValidation['filter_plant_id'])) {
             $query->where('plant_id', $aditionalValidation['filter_plant_id']);
+        }
+
+        if (isset($aditionalValidation['filter_area_id'])) {
+            $query->whereHas('plant', function ($q) use ($aditionalValidation) {
+                $q->where('area_id', $aditionalValidation['filter_area_id']);
+            });
         }
 
         $query = $this->find($request, $query, $searchableColumns);

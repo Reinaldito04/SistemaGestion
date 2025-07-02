@@ -280,5 +280,12 @@ return [
         'winner'                   => 'ganador',
         'work'                     => 'trabajo',
         'year'                     => 'año',
+
+
+        //Personalized attributes
+        'filter_area_id'=> 'área',
+        'filter_plant_id' => 'planta',
+        'filter_active' => 'activo',
+        'plant_id' => 'planta',
     ],
 ];
