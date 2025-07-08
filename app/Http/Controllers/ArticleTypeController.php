@@ -2,23 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ArticleType;
 use Illuminate\Http\Request;
-use App\Models\Area;
 use App\Traits\ControllerTrait;
 
-
-class AreaController extends Controller
+class ArticleTypeController extends Controller
 {
-    
+      
     use ControllerTrait;
 
 
        public function __construct() {
       
-        $this->middleware('permission:areas-browse', ['only' => ['index']]);
-        $this->middleware('permission:areas-read', ['only' => ['show']]);
-        $this->middleware('permission:areas-edit', ['only' => ['update']]);
-        $this->middleware('permission:areas-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:article_types-browse', ['only' => ['index']]);
+        $this->middleware('permission:article_types-read', ['only' => ['show']]);
+        $this->middleware('permission:article_types-edit', ['only' => ['update']]);
+        $this->middleware('permission:article_types-delete', ['only' => ['destroy']]);
     }
 
 
@@ -29,7 +28,7 @@ class AreaController extends Controller
           
         ]);
         $searchableColumns = ['id', 'name', 'display_name', 'description'];
-        $query = Area::query();
+        $query = ArticleType::query();
 
         if (isset($aditionalValidation['filter_active'])) {
             $query->where('active', $aditionalValidation['filter_active']);
@@ -42,7 +41,7 @@ class AreaController extends Controller
 
     public function show($id)
     {
-        $query = Area::query();
+        $query = ArticleType::query();
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);
@@ -56,36 +55,36 @@ class AreaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name',
+            'name' => 'required|string|max:255|unique:article_types,name',
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
             'active' => 'boolean',
         ]);
 
-        $area = Area::create($request->only(['name', 'display_name', 'description', 'active']));
+        $area = ArticleType::create($request->only(['name', 'display_name', 'description', 'active']));
         return response()->json(['data' => $area], 201);
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name,' . $id,
+            'name' => 'required|string|max:255|unique:article_types,name,' . $id,
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
             'active' => 'boolean',
         ]);
-        $area = Area::find($id);
+        $area = ArticleType::find($id);
     if (!$area) {
         return response()->json(['message' => 'Área no encontrada'], 404);
     }           
     $area->update($request->only(['name', 'display_name', 'description', 'active'])); 
     return response()->json(['data' => $area,
-        'message' => 'Área actualizada exitosamente.'], 200);
+        'message' => 'Tipo de artículo actualizado exitosamente.'], 200);
     }
 
 public function destroy(string $uuid)
 {
-     $query = Area::query();
+     $query = ArticleType::query();
 
     $response = $this->eraseById($query, $uuid);
 
@@ -93,7 +92,7 @@ public function destroy(string $uuid)
         return $response;
     }
 
-    return response()->json(['message' => 'Área eliminada correctamente']);
+    return response()->json(['message' => 'Tipo de artículo eliminado correctamente']);
 }
 
 }

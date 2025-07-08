@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SectorController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CategoryController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\HelpDeskController;
 use App\Http\Controllers\RabbitMQController;
 use App\Http\Controllers\PermisionController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ArticleTypeController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -102,10 +104,33 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('/{id}', [SectorController::class, 'update']);
         Route::delete('/{id}', [SectorController::class, 'destroy']);
     });
-    
 
+        Route::group(['prefix' => 'sectors'], function() {
 
+        Route::get('/', [SectorController::class, 'index']);
+        Route::get('/{id}', [SectorController::class, 'show']);
+        Route::post('/', [SectorController::class, 'store']);
+        Route::put('/{id}', [SectorController::class, 'update']);
+        Route::delete('/{id}', [SectorController::class, 'destroy']);
+    });
 
-   
+        Route::group(['prefix' => 'article-types'], function() {
+
+        Route::get('/', [ArticleTypeController::class, 'index']);
+        Route::get('/{id}', [ArticleTypeController::class, 'show']);
+        Route::post('/', [ArticleTypeController::class, 'store']);
+        Route::put('/{id}', [ArticleTypeController::class, 'update']);
+        Route::delete('/{id}', [ArticleTypeController::class, 'destroy']);
+    });
+
+        Route::group(['prefix' => 'articles'], function() {
+
+        Route::get('/', [ArticleController::class, 'index']);
+        Route::get('/{id}', [ArticleController::class, 'show']);
+        Route::post('/', [ArticleController::class, 'store']);
+        Route::put('/{id}', [ArticleController::class, 'update']);
+        Route::delete('/{id}', [ArticleController::class, 'destroy']);
+    });
+
 });
 

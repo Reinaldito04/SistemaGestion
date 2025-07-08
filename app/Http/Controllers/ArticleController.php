@@ -3,22 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Area;
 use App\Traits\ControllerTrait;
+use App\Models\Article;
 
-
-class AreaController extends Controller
+class ArticleController extends Controller
 {
-    
+ 
     use ControllerTrait;
 
 
        public function __construct() {
       
-        $this->middleware('permission:areas-browse', ['only' => ['index']]);
-        $this->middleware('permission:areas-read', ['only' => ['show']]);
-        $this->middleware('permission:areas-edit', ['only' => ['update']]);
-        $this->middleware('permission:areas-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:articles-browse', ['only' => ['index']]);
+        $this->middleware('permission:articles-read', ['only' => ['show']]);
+        $this->middleware('permission:articles-edit', ['only' => ['update']]);
+        $this->middleware('permission:articles-delete', ['only' => ['destroy']]);
     }
 
 
@@ -26,13 +25,18 @@ class AreaController extends Controller
     {
       $aditionalValidation = $request->validate([
             'filter_active' => 'boolean',
-          
+            'filter_article_type_id' => 'integer|exists:article_types,id',
+            
         ]);
         $searchableColumns = ['id', 'name', 'display_name', 'description'];
-        $query = Area::query();
+        $query = Article::query();
 
         if (isset($aditionalValidation['filter_active'])) {
             $query->where('active', $aditionalValidation['filter_active']);
+        }
+
+        if (isset($aditionalValidation['filter_article_type_id'])) {
+            $query->where('article_type_id', $aditionalValidation['filter_article_type_id']);
         }
 
         $query = $this->find($request, $query, $searchableColumns);
@@ -42,7 +46,7 @@ class AreaController extends Controller
 
     public function show($id)
     {
-        $query = Area::query();
+        $query = Article::query();
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);
@@ -56,36 +60,41 @@ class AreaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name',
+            'name' => 'required|string|max:255|unique:articles,name',
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'article_type_id' => 'required|integer|exists:article_types,id',
             'active' => 'boolean',
         ]);
+        
 
-        $area = Area::create($request->only(['name', 'display_name', 'description', 'active']));
-        return response()->json(['data' => $area], 201);
+        $plant = Article::create($request->only(['name', 'display_name', 'description', 'article_type_id', 'active']));
+        
+        
+        return response()->json(['data' => $plant], 201);
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:areas,name,' . $id,
+            'name' => 'required|string|max:255|unique:articles,name,' . $id,
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'article_type_id' => 'required|integer|exists:article_types,id',
             'active' => 'boolean',
         ]);
-        $area = Area::find($id);
-    if (!$area) {
-        return response()->json(['message' => 'Área no encontrada'], 404);
-    }           
-    $area->update($request->only(['name', 'display_name', 'description', 'active'])); 
-    return response()->json(['data' => $area,
-        'message' => 'Área actualizada exitosamente.'], 200);
+        $article = Article::find($id);
+    if (!$article) {
+        return response()->json(['message' => 'Articulo no encontrado'], 404);
+    }
+    $article->update($request->only(['name', 'display_name', 'description', 'active']));
+    return response()->json(['data' => $article,
+        'message' => 'Articulo actualizada exitosamente.'], 200);
     }
 
 public function destroy(string $uuid)
 {
-     $query = Area::query();
+     $query = Article::query();
 
     $response = $this->eraseById($query, $uuid);
 
@@ -93,7 +102,6 @@ public function destroy(string $uuid)
         return $response;
     }
 
-    return response()->json(['message' => 'Área eliminada correctamente']);
+    return response()->json(['message' => 'Articulo eliminada correctamente']);
 }
-
 }

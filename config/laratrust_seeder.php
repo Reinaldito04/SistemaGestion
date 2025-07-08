@@ -19,6 +19,8 @@ return [
               'departments' => 'b,r,e,a,d',
               'plants' => 'b,r,e,a,d',
               'sectors' => 'b,r,e,a,d',
+              'article_types' => 'b,r,e,a,d',
+              'articles' => 'b,r,e,a,d',
         ],
         'administrador' => [
           'users' => 'b,r,e,a,d',
@@ -27,6 +29,8 @@ return [
           'departments' => 'b,r,e,a,d',
             'plants' => 'b,r,e,a,d',
             'sectors' => 'b,r,e,a,d',
+            'article_types' => 'b,r,e,a,d',
+            'articles' => 'b,r,e,a,d',
         ],
         'supervisor' => [
             'users' => 'r',
@@ -35,6 +39,8 @@ return [
             'departments' => 'r',
             'plants' => 'r',
             'sectors' => 'r',
+            'article_types' => 'r',
+            'articles' => 'r',
         ],
         'analista' => [
             'users' => 'r',
@@ -43,6 +49,8 @@ return [
             'departments' => 'r',
             'plants' => 'r',
             'sectors' => 'r',
+            'article_types' => 'r',
+            'articles' => 'r',
         ],
     ],
 
