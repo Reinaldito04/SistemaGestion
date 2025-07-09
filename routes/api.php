@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantController;
@@ -130,6 +131,13 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/', [ArticleController::class, 'store']);
         Route::put('/{id}', [ArticleController::class, 'update']);
         Route::delete('/{id}', [ArticleController::class, 'destroy']);
+    });
+
+       Route::group(['prefix' => 'files'], function() {
+
+        Route::get('/', [FileController::class, 'index']);
+        Route::get('/{id}', [FileController::class, 'show']);
+      
     });
 
 });
