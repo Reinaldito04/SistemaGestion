@@ -21,6 +21,10 @@ return [
               'sectors' => 'b,r,e,a,d',
               'article_types' => 'b,r,e,a,d',
               'articles' => 'b,r,e,a,d',
+              'files' => 'b,r,e,a,d',
+              'iers' => 'b,r,e,a,d',
+
+
         ],
         'administrador' => [
           'users' => 'b,r,e,a,d',
@@ -31,26 +35,36 @@ return [
             'sectors' => 'b,r,e,a,d',
             'article_types' => 'b,r,e,a,d',
             'articles' => 'b,r,e,a,d',
+            'files' => 'b,r,e,a,d',
+            'iers' => 'b,r,e,a,d',
+
+
         ],
         'supervisor' => [
-            'users' => 'r',
-            'roles' => 'r',
-            'permissions' => 'r',
-            'departments' => 'r',
-            'plants' => 'r',
-            'sectors' => 'r',
-            'article_types' => 'r',
-            'articles' => 'r',
+            'users' => 'b,r',
+            'roles' => 'b,r',
+            'permissions' => 'b,r',
+            'departments' => 'b,r',
+            'plants' => 'b,r',
+            'sectors' => 'b,r',
+            'article_types' => 'b,r',
+            'articles' => 'b,r',
+            'files' => 'b,r',
+            'iers' => 'b,r',
+
+
         ],
         'analista' => [
-            'users' => 'r',
-            'roles' => 'r',
-            'permissions' => 'r',
-            'departments' => 'r',
-            'plants' => 'r',
-            'sectors' => 'r',
-            'article_types' => 'r',
-            'articles' => 'r',
+            'users' => 'b,r',
+            'roles' => 'b,r',
+            'permissions' => 'b,r',
+            'departments' => 'b,r',
+            'plants' => 'b,r',
+            'sectors' => 'b,r',
+            'article_types' => 'b,r',
+            'articles' => 'b,r',
+            'files' => 'b,r',
+
         ],
     ],
 

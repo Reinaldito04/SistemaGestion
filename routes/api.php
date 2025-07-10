@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IerController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileController;
@@ -137,6 +138,21 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
         Route::get('/', [FileController::class, 'index']);
         Route::get('/{id}', [FileController::class, 'show']);
+      
+    });
+
+      Route::group(['prefix' => 'iers'], function() {
+
+        Route::get('/', [IerController::class, 'index']);
+        Route::get('/{id}', [IerController::class, 'show']);
+        Route::put('/{id}', [IerController::class, 'update']);
+        Route::post('/', [IerController::class, 'store']);
+        Route::post('/assign-files', [IerController::class, 'uploadFilesToIer']);       
+        Route::post('/delete-files', [IerController::class, 'deleteFilesFromIer']);
+
+        Route::delete('/{id}', [IerController::class, 'destroy']);
+
+        
       
     });
 

@@ -20,6 +20,10 @@ class File extends Model
         
     ];
 
+      protected $hidden = [
+        'file_base64',
+    ];
+
     public function getLinkAttribute()
     {
         return env('APP_URL_MEDIA') . $this->id;
