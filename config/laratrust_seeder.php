@@ -23,7 +23,7 @@ return [
               'articles' => 'b,r,e,a,d',
               'files' => 'b,r,e,a,d',
               'iers' => 'b,r,e,a,d',
-
+              'areas' => 'b,r,e,a,d',
 
         ],
         'administrador' => [
@@ -37,6 +37,7 @@ return [
             'articles' => 'b,r,e,a,d',
             'files' => 'b,r,e,a,d',
             'iers' => 'b,r,e,a,d',
+            'areas' => 'b,r,e,a,d',
 
 
         ],
@@ -51,6 +52,7 @@ return [
             'articles' => 'b,r',
             'files' => 'b,r',
             'iers' => 'b,r',
+            'areas' => 'b,r',
 
 
         ],
@@ -64,6 +66,8 @@ return [
             'article_types' => 'b,r',
             'articles' => 'b,r',
             'files' => 'b,r',
+            'areas' => 'b,r',
+
 
         ],
     ],
