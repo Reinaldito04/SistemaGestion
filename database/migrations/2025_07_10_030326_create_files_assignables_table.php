@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('assignable_type');
             $table->foreign('file_id')->references('id')->on('files')
                   ->onUpdate('cascade')->onDelete('cascade');
-            $table->index(['assignable_id', 'assignable_type'], 'assignable_index');
+$table->index(['assignable_id', 'assignable_type'], 'files_assignable_index');
             $table->timestamps();
         
         });
