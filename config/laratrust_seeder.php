@@ -24,6 +24,7 @@ return [
               'files' => 'b,r,e,a,d',
               'iers' => 'b,r,e,a,d',
               'areas' => 'b,r,e,a,d',
+              'tasks' => 'b,r,e,a,d',
 
         ],
         'administrador' => [
@@ -53,6 +54,7 @@ return [
             'files' => 'b,r',
             'iers' => 'b,r',
             'areas' => 'b,r',
+           
 
 
         ],

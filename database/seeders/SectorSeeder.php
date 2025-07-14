@@ -400,8 +400,8 @@ class SectorSeeder extends Seeder
 
                 $m                      = new Sector;
                 $m->id                  = $a['id']                  ?? null;
-                $m->name                = $a['name']                ?? null;
-                $m->display_name        = $a['display_name']        ?? null;
+                $m->name                = $a['display_name']                ?? null;
+                $m->display_name        = $a['name']        ?? null;
                 $m->description         = $a['description']         ?? null;
                 $m->active              = $a['active']              ?? null;
                 $m->plant_id             = $a['plant_id']             ?? null;

@@ -14,7 +14,13 @@ class Plant extends Model
          'active' => 'boolean',
     ];
 
-    protected $appends = ['area_name', 'area_display_name'];
+    protected $appends = [
+        'ier_name',
+        'ier__display_name',
+        'area_name',
+        'area_display_name',
+    ];
+
     /**
      * Get the area that owns the plant.
      */
@@ -31,5 +37,29 @@ class Plant extends Model
      {
           return $this->area ? $this->area->display_name : null;
      }
+
+     
+     public function iers()
+{
+    return $this->morphToMany(Ier::class, 'assignable', 'iers_assignables', 'assignable_id', 'ier_id')
+                ->withTimestamps();
+}
+
+
+    public function getIerNameAttribute()
+    {
+        return $this->iers()->limit(1)->first()?->name ?? null;
+    }
+
+      public function getIerDisplayNameAttribute()
+    {
+        return $this->iers()->limit(1)->first()?->display_name ?? null;
+    }
+
+      public function getIerIdttribute()
+    {
+        return $this->iers()->limit(1)->first()?->id ?? null;
+    }
+
     
 }

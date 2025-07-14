@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "illuminate/queue": "*",
+        "kalnoy/nestedset": "^6.0",
         "laravel/framework": "^12.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Role;
+use App\Traits\Commentable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use Laratrust\Contracts\LaratrustUser;
@@ -16,6 +17,7 @@ class User extends Authenticatable implements LaratrustUser
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
     use HasRolesAndPermissions;
+     use Commentable;
     /**
      * The attributes that are mass assignable.
      *
@@ -58,5 +60,9 @@ class User extends Authenticatable implements LaratrustUser
         // Puedes personalizar esta consulta según tu lógica de permisos
         return $this->allPermissions()->unique('id')->values();
     }
-
+    
+    public function tasks()
+{
+    return $this->belongsToMany(Task::class);
+}
 }
