@@ -18,8 +18,15 @@ class Task extends Model
 
     protected $appends = [
         'sector_name',  'sector_display_name','plant_name','plant_display_name','area_display_name','area_display_name',
-        'ier_display_name', 'ier_name','status'
+        'ier_display_name', 'ier_name','status', 'creator_name'
     ];
+
+    protected static function booted()
+{
+    static::addGlobalScope('withParticipants', function ($query) {
+        $query->with('participants');
+    });
+}
 
     /**
      * Relación: un task pertenece a un sector.
@@ -144,5 +151,15 @@ class Task extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function creator()
+{
+    return $this->belongsTo(User::class, 'created_by');
+}
+
+    public function getCreatorNameAttribute()
+{
+    return $this->creator?->name ?? null;
+}
 
 }

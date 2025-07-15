@@ -6,6 +6,7 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Traits\ControllerTrait;
 use Laratrust\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -26,7 +27,7 @@ class TaskController extends Controller
             
           
         ]);
-        $searchableColumns = ['id','tittle', 'description', 'display_name'];
+        $searchableColumns = ['id','tittle', 'description'];
         $query = Task::query();
 
      
@@ -79,36 +80,42 @@ public function store(Request $request)
     return response()->json(['data' => $model], 201);
 }
 
-public function asignarParticipantes(Request $request, $taskId)
+
+public function asignarParticipantes(Request $request)
 {
     $request->validate([
+        'task_id' => ['required', 'exists:tasks,id'],
         'user_ids' => ['required', 'array', 'min:1'],
         'user_ids.*' => ['exists:users,id'],
     ]);
 
-    $task = Task::findOrFail($taskId);
+    $task = Task::findOrFail($request->task_id);
 
-    // 🔗 Sincroniza sin remover existentes
+    if ($task->created_by !== Auth::id()) {
+        return response()->json(['error' => 'Solo el creador de la actividad puede agregar participantes.'], 403);
+    }
+
     $task->participants()->syncWithoutDetaching($request->user_ids);
 
     return response()->json(['message' => 'Participantes asignados correctamente'], 200);
 }
 
-public function revocarParticipantes(Request $request, $taskId)
+public function revocarParticipantes(Request $request)
 {
     $request->validate([
+        'task_id' => ['required', 'exists:tasks,id'],
         'user_ids' => ['required', 'array', 'min:1'],
         'user_ids.*' => ['exists:users,id'],
     ]);
 
-    $task = Task::findOrFail($taskId);
+    $task = Task::findOrFail($request->task_id);
+
+    if ($task->created_by !== Auth::id()) {
+        return response()->json(['error' => 'Solo el creador de la actividad puede revocar participantes.'], 403);
+    }
 
     $currentIds = $task->participants()->pluck('users.id')->toArray();
-
-    // ✂️ Filtra IDs que realmente existen en la relación
     $revocarIds = array_intersect($currentIds, $request->user_ids);
-
-    // 💡 Asegura que al menos quede uno después de revocar
     $remaining = array_diff($currentIds, $revocarIds);
 
     if (count($remaining) < 1) {
