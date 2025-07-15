@@ -24,7 +24,7 @@ return [
               'files' => 'b,r,e,a,d',
               'iers' => 'b,r,e,a,d',
               'areas' => 'b,r,e,a,d',
-              'tasks' => 'b,r,e,a,d',
+              'tasks' => 'b,r,e,a,d,s',
 
         ],
         'administrador' => [
@@ -80,5 +80,6 @@ return [
         'e' => 'edit',
         'a' => 'add',
         'd' => 'delete',
+        's' => 'supervise',
     ],
 ];
