@@ -127,7 +127,67 @@ public function revocarParticipantes(Request $request)
     return response()->json(['message' => 'Participantes revocados correctamente'], 200);
 }
 
+public function update(Request $request,$id)
+{
+    $request->validate([
+        'title' => ['required', 'string', 'max:255'],
+        'description' => ['nullable', 'string', 'max:2500'],
+        'article_id' => ['required', 'exists:articles,id'],
+        'sector_id' => ['required', 'exists:sectors,id'],
+    ]);
 
+    $task = Task::find($id);
+
+
+          
+    if (!$task) {
+        return response()->json(['message' => 'Actividad no encontrada'], 404);
+    }      
+
+
+    $user = Auth::user();
+
+    if ($user->id !== $task->created_by && ! $user->hasPermission('tasks-supervise')) {
+        return response()->json(['error' => 'No tienes permiso para editar esta actividad.'], 403);
+    }
+
+    $task->update([
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+        'article_id' => $request->input('article_id'),
+        'sector_id' => $request->input('sector_id'),
+    ]);
+
+    return response()->json(['message' => 'Actividad actualizada correctamente', 'data' => $task], 200);
+}
+
+public function cerrarActividad(Request $request)
+{
+    $request->validate([
+        'task_id' => ['required', 'exists:tasks,id'],
+    ]);
+
+    $task = Task::findOrFail($request->task_id);
+    $user = Auth::user();
+
+    // 🔒 Solo creador o con permiso
+    if ($user->id !== $task->created_by && ! $user->hasPermission('tasks-supervise')) {
+        return response()->json(['error' => 'No tienes permiso para cerrar esta actividad.'], 403);
+    }
+
+    // 📋 Validación del estado
+    if ($task->status !== 'En proceso') {
+        return response()->json([
+            'error' => 'La actividad no puede cerrarse porque su estatus es: ' . $task->status,
+        ], 422);
+    }
+
+    // 🛠️ Cierra y guarda la actividad
+    $task->closeActivity();
+    $task->save();
+
+    return response()->json(['message' => 'Actividad cerrada exitosamente.'], 200);
+}
 
 
 }

@@ -162,4 +162,9 @@ class Task extends Model
     return $this->creator?->name ?? null;
 }
 
+public function closeActivity()
+{
+    $this->executed_at = now();
+}
+
 }
