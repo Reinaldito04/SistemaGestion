@@ -91,59 +91,78 @@ class Task extends Model
             : null;
     }
 
-      public function getStatusAttribute()
-    {
-        $executed = $this->executed_at;
-        $approved = $this->approved_at;
-        $canceled = $this->canceled_at;
+     public function getStatusAttribute()
+{
+    $executed   = $this->executed_at;
+    $approved   = $this->approved_at;
+    $canceled   = $this->canceled_at;
+    $audited    = $this->audited_by;
 
-        if (is_null($executed) && is_null($approved) && is_null($canceled)) {
-            return 'En proceso';
-        }
-
-        if (!is_null($executed) && is_null($approved) && is_null($canceled)) {
-            return 'Ejecutado';
-        }
-
-        if (!is_null($executed) && !is_null($approved) && is_null($canceled)) {
-            return 'Aprobado';
-        }
-
-        return 'Indeterminado'; // 🔒 fallback por si no encaja en ningún estado
+    // 🟢 En proceso
+    if (is_null($executed) && is_null($approved) && is_null($canceled)) {
+        return 'En proceso';
     }
 
-        public function scopeEnProceso($query)
-    {
-        return $query->whereNull('executed_at')
-                    ->whereNull('approved_at')
-                    ->whereNull('canceled_at');
+    // 🔵 Ejecutado
+    if (!is_null($executed) && is_null($approved) && is_null($canceled)) {
+        return 'Ejecutado';
     }
 
-        public function scopeEjecutado($query)
-    {
-        return $query->whereNotNull('executed_at')
-                    ->whereNull('approved_at')
-                    ->whereNull('canceled_at');
+    // 🟣 Aprobado
+    if (!is_null($executed) && !is_null($approved) && is_null($canceled)) {
+        return 'Aprobado';
     }
 
-        public function scopeAprobado($query)
-    {
-        return $query->whereNotNull('executed_at')
-                    ->whereNotNull('approved_at')
-                    ->whereNull('canceled_at');
+    // 🔴 Cancelado (aprobación nula, pero cancelación y auditoría activas)
+    if (!is_null($canceled) && !is_null($audited) && is_null($approved)) {
+        return 'Cancelado';
     }
 
-    public function scopeIndeterminado($query)
-    {
-        return $query->where(function ($q) {
-            $q->whereNotNull('canceled_at')
-            ->orWhere(function ($subQ) {
-                $subQ->whereNotNull('executed_at')
-                    ->whereNotNull('approved_at')
-                    ->whereNotNull('canceled_at');
-            });
-        });
-    }
+    // 🧩 Fallback
+    return 'Indeterminado';
+}
+
+
+       public function scopeEnProceso($query)
+{
+    return $query->whereNull('executed_at')
+                 ->whereNull('approved_at')
+                 ->whereNull('canceled_at');
+}
+
+public function scopeEjecutado($query)
+{
+    return $query->whereNotNull('executed_at')
+                 ->whereNull('approved_at')
+                 ->whereNull('canceled_at');
+}
+
+public function scopeAprobado($query)
+{
+    return $query->whereNotNull('executed_at')
+                 ->whereNotNull('approved_at')
+                 ->whereNull('canceled_at');
+}
+
+public function scopeCancelado($query)
+{
+    return $query->whereNotNull('canceled_at')
+                 ->whereNotNull('audited_by')
+                 ->whereNull('approved_at');
+}
+
+public function scopeIndeterminado($query)
+{
+    return $query->where(function ($q) {
+        $q->whereNotNull('canceled_at')
+          ->whereNull('audited_by'); // 👈 cancelado pero sin auditoría válida
+    })->orWhere(function ($subQ) {
+        $subQ->whereNotNull('executed_at')
+             ->whereNotNull('approved_at')
+             ->whereNotNull('canceled_at');
+    });
+}
+
 
 
 

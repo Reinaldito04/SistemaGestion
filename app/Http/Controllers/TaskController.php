@@ -29,7 +29,7 @@ class TaskController extends Controller
         'filter_audited_by' => 'nullable|integer|exists:users,id',
         'filter_participant_ids' => 'nullable|array',
         'filter_participant_ids.*' => 'integer|exists:users,id',
-        'filter_status' => 'nullable|string|in:En proceso,Ejecutado,Aprobado,Indeterminado',
+         'filter_status' => 'nullable|string|in:En proceso,Ejecutado,Aprobado,Cancelado',
         'filter_sector_id' => 'nullable|integer|exists:sectors,id',
         'filter_plant_id' => 'nullable|integer|exists:plants,id',
         'filter_area_id' => 'nullable|integer|exists:areas,id',
@@ -73,15 +73,14 @@ class TaskController extends Controller
     }
 
     // 🔁 Filtro por estado usando scopes
-    if ($filterStatus = $request->input('filter_status')) {
-        match ($filterStatus) {
-            'En proceso'    => $query->enProceso(),
-            'Ejecutado'     => $query->ejecutado(),
-            'Aprobado'      => $query->aprobado(),
-            'Indeterminado' => $query->indeterminado(),
-        };
-    }
-
+   if ($filterStatus = $request->input('filter_status')) {
+    match ($filterStatus) {
+        'En proceso'    => $query->enProceso(),
+        'Ejecutado'     => $query->ejecutado(),
+        'Aprobado'      => $query->aprobado(),
+        'Cancelado'     => $query->cancelado(),
+    };
+}
     // 🔍 Búsqueda libre y filtros de fecha (period_filters[])
     $query = $this->find($request, $query, $searchableColumns, $searchablePeriodColumns);
 
@@ -242,6 +241,47 @@ public function cerrarActividad(Request $request)
     $task->save();
 
     return response()->json(['message' => 'Actividad cerrada exitosamente.'], 200);
+}
+
+public function cancelarActividad(Request $request)
+{
+    $request->validate([
+        'task_id' => ['required', 'exists:tasks,id'],
+    ]);
+
+    $task = Task::findOrFail($request->task_id);
+    $user = Auth::user();
+
+    // 🔐 Validación de permiso
+    if ($user->id !== $task->created_by && ! $user->hasPermission('tasks-supervise')) {
+        return response()->json([
+            'error' => 'No tienes permiso para cancelar esta actividad.',
+        ], 403);
+    }
+
+    $status = $task->status;
+
+    // 🚫 Actividades que no pueden ser canceladas
+    if (in_array($status, ['Aprobado', 'Cancelado', 'Indeterminado'])) {
+        return response()->json([
+            'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus "' . $status . '"',
+        ], 422);
+    }
+
+    // ✅ Puede ser cancelada
+    if (in_array($status, ['En proceso', 'Ejecutado'])) {
+        $task->canceled_at = now();
+        $task->save();
+
+        return response()->json([
+            'message' => 'Actividad cancelada exitosamente.',
+        ], 200);
+    }
+
+    // 🔁 Fallback por si aparece un estado inesperado
+    return response()->json([
+        'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus "' . $status . '"',
+    ], 422);
 }
 
 
