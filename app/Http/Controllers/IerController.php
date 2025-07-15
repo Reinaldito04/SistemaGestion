@@ -48,7 +48,8 @@ class IerController extends Controller
 
     public function show($id)
     {
-        $query = Ier::query();
+       $query = Ier::query()
+            ->with('files'); 
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);

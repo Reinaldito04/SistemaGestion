@@ -21,21 +21,33 @@ class TaskController extends Controller
     }
 
 
-    public function index(Request $request)
-    {
-      $aditionalValidation = $request->validate([
-            
-          
-        ]);
-        $searchableColumns = ['id','tittle', 'description'];
-        $query = Task::query();
+   public function index(Request $request)
+{
+    // ⚙️ Validación opcional
+    $request->validate([
+        'filter_created_by' => 'nullable|integer|exists:users,id',
+        'filter_audited_by' => 'nullable|integer|exists:users,id',
 
-     
+    ]);
 
-        $query = $this->find($request, $query, $searchableColumns);
-        $results = $this->paginate($request, $query, $searchableColumns);
-        return response()->json($results);
+    $searchableColumns = ['id', 'title', 'description'];
+    $query = Task::query();
+
+    // 🔍 Aplica filtro solo si está presente
+  if ($filterCreatedBy = $request->input('filter_created_by')) {
+    $query->where('created_by', $filterCreatedBy);
+}
+
+    // 🔍 Aplica filtro solo si está presente
+    if ($filterAuditedBy = $request->input('filter_audited_by')) {
+        $query->where('audited_by', $filterAuditedBy);
     }
+    // 🔄 Aplicar búsqueda y paginación
+    $query = $this->find($request, $query, $searchableColumns);
+    $results = $this->paginate($request, $query, $searchableColumns);
+
+    return response()->json($results);
+}
     
 
 
