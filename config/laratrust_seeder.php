@@ -54,7 +54,7 @@ return [
             'files' => 'b,r',
             'iers' => 'b,r',
             'areas' => 'b,r',
-           
+            'tasks' => 'b,r,e,a,d,s',
 
 
         ],

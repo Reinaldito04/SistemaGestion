@@ -252,8 +252,7 @@ public function cancelarActividad(Request $request)
     $task = Task::findOrFail($request->task_id);
     $user = Auth::user();
 
-    // 🔐 Validación de permiso
-    if ($user->id !== $task->created_by && ! $user->hasPermission('tasks-supervise')) {
+  if (! $user->hasPermission('tasks-supervise')) {
         return response()->json([
             'error' => 'No tienes permiso para cancelar esta actividad.',
         ], 403);
@@ -270,9 +269,9 @@ public function cancelarActividad(Request $request)
 
     // ✅ Puede ser cancelada
     if (in_array($status, ['En proceso', 'Ejecutado'])) {
-        $task->canceled_at = now();
+        $task->declineBy($user);
         $task->save();
-
+       
         return response()->json([
             'message' => 'Actividad cancelada exitosamente.',
         ], 200);

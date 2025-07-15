@@ -186,4 +186,11 @@ public function closeActivity()
     $this->executed_at = now();
 }
 
+public function declineBy(User $user)
+{
+    $this->canceled_at = now();
+    $this->audited_by = $user->id;
+}
+
+
 }
