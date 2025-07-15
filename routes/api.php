@@ -165,6 +165,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/', [TaskController::class, 'store']);
         Route::put('/{id}', [TaskController::class, 'update']);
         Route::post('/decline', [TaskController::class, 'cancelarActividad']);
+        Route::post('/approve', [TaskController::class, 'approveActivity']);
+        Route::post('/execute', [TaskController::class, 'executeActivity']); 
         Route::delete('/{id}', [TaskController::class, 'destroy']);
     });
 

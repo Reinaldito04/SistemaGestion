@@ -192,5 +192,11 @@ public function declineBy(User $user)
     $this->audited_by = $user->id;
 }
 
+public function approveBy(User $user)
+{
+    $this->approved_at = now();
+    $this->audited_by = $user->id;
+}
+
 
 }

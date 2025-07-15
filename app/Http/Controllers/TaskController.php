@@ -215,7 +215,7 @@ public function update(Request $request,$id)
     return response()->json(['message' => 'Actividad actualizada correctamente', 'data' => $task], 200);
 }
 
-public function cerrarActividad(Request $request)
+public function executeActivity(Request $request)
 {
     $request->validate([
         'task_id' => ['required', 'exists:tasks,id'],
@@ -224,25 +224,30 @@ public function cerrarActividad(Request $request)
     $task = Task::findOrFail($request->task_id);
     $user = Auth::user();
 
-    // 🔒 Solo creador o con permiso
-    if ($user->id !== $task->created_by && ! $user->hasPermission('tasks-supervise')) {
-        return response()->json(['error' => 'No tienes permiso para cerrar esta actividad.'], 403);
+    // 🔒 Solo el creador puede ejecutarla
+    if ($user->id !== $task->created_by) {
+        return response()->json([
+            'error' => 'No tienes permiso para ejecutar esta actividad.',
+        ], 403);
     }
 
-    // 📋 Validación del estado
-    if ($task->status !== 'En proceso') {
+    $status = $task->status;
+
+    // ⛔ Solo se puede ejecutar si está "En proceso"
+    if ($status !== 'En proceso') {
         return response()->json([
-            'error' => 'La actividad no puede cerrarse porque su estatus es: ' . $task->status,
+            'error' => 'No se puede ejecutar la actividad porque ya se encuentra en el estatus ' . $status,
         ], 422);
     }
 
-    // 🛠️ Cierra y guarda la actividad
-    $task->closeActivity();
+    // ✅ Ejecutar la actividad
+    $task->executed_at = now();
     $task->save();
 
-    return response()->json(['message' => 'Actividad cerrada exitosamente.'], 200);
+    return response()->json([
+        'message' => 'Actividad ejecutada exitosamente.',
+    ], 200);
 }
-
 public function cancelarActividad(Request $request)
 {
     $request->validate([
@@ -263,7 +268,7 @@ public function cancelarActividad(Request $request)
     // 🚫 Actividades que no pueden ser canceladas
     if (in_array($status, ['Aprobado', 'Cancelado', 'Indeterminado'])) {
         return response()->json([
-            'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus "' . $status . '"',
+            'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus: ' . $status,
         ], 422);
     }
 
@@ -279,9 +284,45 @@ public function cancelarActividad(Request $request)
 
     // 🔁 Fallback por si aparece un estado inesperado
     return response()->json([
-        'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus "' . $status . '"',
+        'error' => 'No se puede cancelar la actividad porque ya se encuentra en el estatus: ' . $status,
     ], 422);
 }
+
+public function approveActivity(Request $request)
+{
+    $request->validate([
+        'task_id' => ['required', 'exists:tasks,id'],
+    ]);
+
+    $task = Task::findOrFail($request->task_id);
+    $user = Auth::user();
+
+    // 🔒 Solo usuarios con permiso de supervisión pueden aprobar
+    if (! $user->hasPermission('tasks-supervise')) {
+        return response()->json([
+            'error' => 'No tienes permiso para aprobar esta actividad.',
+        ], 403);
+    }
+
+    $status = $task->status;
+
+    // ⛔ Validación: solo se aprueba si está en estado Ejecutado
+    if ($status !== 'Ejecutado') {
+        return response()->json([
+             'error' => 'No se puede aprobar la actividad porque ya se encuentra en el estatus: ' . $status,
+        ], 422);
+    }
+
+    // ✅ Aprobar actividad
+    $task->approveBy($user);
+    $task->save();
+
+    return response()->json([
+        'message' => 'Actividad aprobada exitosamente.',
+    ], 200);
+}
+
+
 
 
 }
