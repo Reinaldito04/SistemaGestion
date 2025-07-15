@@ -23,31 +23,74 @@ class TaskController extends Controller
 
    public function index(Request $request)
 {
-    // ⚙️ Validación opcional
+    // ⚙️ Validación de filtros
     $request->validate([
         'filter_created_by' => 'nullable|integer|exists:users,id',
         'filter_audited_by' => 'nullable|integer|exists:users,id',
-
+        'filter_participant_ids' => 'nullable|array',
+        'filter_participant_ids.*' => 'integer|exists:users,id',
+        'filter_status' => 'nullable|string|in:En proceso,Ejecutado,Aprobado,Indeterminado',
+        'filter_sector_id' => 'nullable|integer|exists:sectors,id',
+        'filter_plant_id' => 'nullable|integer|exists:plants,id',
+        'filter_area_id' => 'nullable|integer|exists:areas,id',
     ]);
 
+    // 🔎 Columnas buscables y filtrables por periodo
     $searchableColumns = ['id', 'title', 'description'];
+    $searchablePeriodColumns = ['created_at', 'executed_at', 'approved_at', 'canceled_at'];
+
     $query = Task::query();
 
-    // 🔍 Aplica filtro solo si está presente
-  if ($filterCreatedBy = $request->input('filter_created_by')) {
-    $query->where('created_by', $filterCreatedBy);
-}
+    // 🎯 Filtros directos
+    if ($filterCreatedBy = $request->input('filter_created_by')) {
+        $query->where('created_by', $filterCreatedBy);
+    }
 
-    // 🔍 Aplica filtro solo si está presente
     if ($filterAuditedBy = $request->input('filter_audited_by')) {
         $query->where('audited_by', $filterAuditedBy);
     }
-    // 🔄 Aplicar búsqueda y paginación
-    $query = $this->find($request, $query, $searchableColumns);
+
+    if ($participantIds = $request->input('filter_participant_ids')) {
+        $query->whereHas('participants', function ($q) use ($participantIds) {
+            $q->whereIn('users.id', $participantIds);
+        });
+    }
+
+    if ($filterSectorId = $request->input('filter_sector_id')) {
+        $query->where('sector_id', $filterSectorId);
+    }
+
+    if ($filterPlantId = $request->input('filter_plant_id')) {
+        $query->whereHas('sector.plant', function ($q) use ($filterPlantId) {
+            $q->where('id', $filterPlantId);
+        });
+    }
+
+    if ($filterAreaId = $request->input('filter_area_id')) {
+        $query->whereHas('sector.plant.area', function ($q) use ($filterAreaId) {
+            $q->where('id', $filterAreaId);
+        });
+    }
+
+    // 🔁 Filtro por estado usando scopes
+    if ($filterStatus = $request->input('filter_status')) {
+        match ($filterStatus) {
+            'En proceso'    => $query->enProceso(),
+            'Ejecutado'     => $query->ejecutado(),
+            'Aprobado'      => $query->aprobado(),
+            'Indeterminado' => $query->indeterminado(),
+        };
+    }
+
+    // 🔍 Búsqueda libre y filtros de fecha (period_filters[])
+    $query = $this->find($request, $query, $searchableColumns, $searchablePeriodColumns);
+
+    // 📦 Paginación y ordenamiento
     $results = $this->paginate($request, $query, $searchableColumns);
 
     return response()->json($results);
 }
+
     
 
 
