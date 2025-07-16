@@ -323,6 +323,53 @@ public function approveActivity(Request $request)
 }
 
 
+public function addComments(Request $request,$id)
+{
+    $request->validate([
+        'title' => 'nullable|string|max:255',
+        'body' => 'required|string|max:1000',
+    ]);
+
+
+    $query = Task::query();
+    
+    $query->where('id', $id);
+
+    $query->select( 'id');
+
+    $data = $query->first();
+
+  
+    if (!isset($data)) {
+        return response()->json(['error' => 'Registro no encontrado'], 404);
+    }
+
+    $commentData = [
+        'title' =>  $request->title ?? "Comentario",
+        'body' => $request->body,
+        'active' => true
+    ];
+
+    $comment = $data->comment($commentData, Auth::user());
+
+    return response()->json(
+        [
+         'message' => 'Comentario agregado exitosamente',
+         'data'=>$comment
+        ], 201);
+}
+
+
+public function showComments($id)
+{
+    $task = Task::find($id);
+
+    if (!$task) {
+        return response()->json(['error' => 'Registro no encontrado'], 404);
+    }
+   $comments= $task->comments()->with('creator')->get();
+    return response()->json(['data' =>$comments], 200);
+}
 
 
 }

@@ -162,11 +162,17 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
         Route::get('/', [TaskController::class, 'index']);
         Route::get('/{id}', [TaskController::class, 'show']);
+        Route::get('/{id}/comments', [TaskController::class, 'showComments']);
+
         Route::post('/', [TaskController::class, 'store']);
         Route::put('/{id}', [TaskController::class, 'update']);
         Route::post('/decline', [TaskController::class, 'cancelarActividad']);
         Route::post('/approve', [TaskController::class, 'approveActivity']);
         Route::post('/execute', [TaskController::class, 'executeActivity']); 
+
+                Route::post('/{id}/comments', [TaskController::class, 'addComments']);
+
+
         Route::delete('/{id}', [TaskController::class, 'destroy']);
     });
 
