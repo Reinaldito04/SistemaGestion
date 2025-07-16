@@ -169,8 +169,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/decline', [TaskController::class, 'cancelarActividad']);
         Route::post('/approve', [TaskController::class, 'approveActivity']);
         Route::post('/execute', [TaskController::class, 'executeActivity']); 
-
-                Route::post('/{id}/comments', [TaskController::class, 'addComments']);
+        Route::post('/{id}/comments', [TaskController::class, 'addComments']);
+        Route::post('/assign-files', [TaskController::class, 'uploadFiles']);       
+        Route::post('/delete-files', [TaskController::class, 'deleteFiles']);
 
 
         Route::delete('/{id}', [TaskController::class, 'destroy']);

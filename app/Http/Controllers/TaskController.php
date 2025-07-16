@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Traits\ControllerTrait;
 use Laratrust\Models\Permission;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -39,7 +42,7 @@ class TaskController extends Controller
     $searchableColumns = ['id', 'title', 'description'];
     $searchablePeriodColumns = ['created_at', 'executed_at', 'approved_at', 'canceled_at'];
 
-    $query = Task::query();
+    $query = Task::query()->with('files'); 
 
     // 🎯 Filtros directos
     if ($filterCreatedBy = $request->input('filter_created_by')) {
@@ -95,7 +98,7 @@ class TaskController extends Controller
 
         public function show($id)
     {
-        $query = Task::query();
+        $query = Task::query()->with('files'); 
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);
@@ -369,6 +372,106 @@ public function showComments($id)
     }
    $comments= $task->comments()->with('creator')->get();
     return response()->json(['data' =>$comments], 200);
+}
+
+public function uploadFiles(Request $request)
+{
+    $request->validate([
+        'task_id' => 'required|exists:tasks,id',
+        'files' => 'required|array|min:1',
+        'files.*' => 'required|file|mimes:pdf|max:10240',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $model = Task::findOrFail($request->task_id);
+        $savedFiles = [];
+
+        foreach ($request->file('files') as $uploadedFile) {
+            $base64 = base64_encode(file_get_contents($uploadedFile->getRealPath()));
+
+            $file = File::create([
+                'name' => $uploadedFile->getClientOriginalName(),
+                'file_extension' => $uploadedFile->getClientOriginalExtension(),
+                'file_size' => $uploadedFile->getSize(),
+                'compressed_file_size' => null,
+                'file_base64' => $base64,
+            ]);
+
+            $model->files()->attach($file->id);
+            $savedFiles[] = $file;
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Todos los archivos fueron cargados y vinculados exitosamente.',
+            'files' => $savedFiles,
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al subir archivos amodel: ' . $e->getMessage());
+
+        return response()->json([
+            'message' => 'Error al procesar los archivos. No se guardó nada.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function deleteFiles(Request $request)
+{
+    $request->validate([
+        'task_id' => 'required|exists:tasks,id',
+        'file_ids' => 'required|array|min:1',
+        'file_ids.*' => 'required|integer|distinct|exists:files,id',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $model = Task::findOrFail($request->task_id);
+
+        // Forzar índices numéricos
+        $fileIds = array_values($request->input('file_ids'));
+
+        // Obtener IDs de archivos vinculados
+        $linkedFileIds = $model->files()->pluck('files.id')->toArray();
+
+        // Validar que todos estén vinculados
+        $notLinked = array_diff($fileIds, $linkedFileIds);
+
+        if (count($notLinked) > 0) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Algunos archivos no están vinculados a la actividad. No se eliminó nada.',
+                'not_linked' => array_values($notLinked),           
+ ], 422);
+        }
+
+        // Eliminar asociaciones y registros
+        foreach ($fileIds as $fileId) {
+            $model->files()->detach($fileId);
+            File::find($fileId)?->delete();
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Todos los archivos fueron eliminados correctamente.',
+            'deleted' => $fileIds,
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al eliminar archivos de la actividad: ' . $e->getMessage());
+
+        return response()->json([
+            'message' => 'Error inesperado. No se eliminó nada.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
 
 

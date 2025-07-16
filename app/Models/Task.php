@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Traits\Commentable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Task extends Model
 {
@@ -202,5 +203,10 @@ public function approveBy(User $user)
     $this->audited_by = $user->id;
 }
 
+   public function files(): MorphToMany
+    {
+        return $this->morphToMany(File::class, 'assignable', 'files_assignables', 'assignable_id', 'file_id')
+                    ->withTimestamps();
+    }
 
 }
