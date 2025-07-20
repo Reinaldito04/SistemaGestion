@@ -475,4 +475,40 @@ public function deleteFiles(Request $request)
 }
 
 
+public function destroy($id)
+{
+    $task = Task::find($id);        
+    if (!$task) {
+        return response()->json(['message' => 'Actividad no encontrada'], 404);
+    }
+
+    if ($task->created_by !== auth()->id()) {
+        return response()->json(['message' => 'Solo el creador de la actividad puede eliminar la actividad'], 403);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // Eliminar comentarios relacionados
+        $task->comments()->delete();
+
+        // Eliminar archivos relacionados en la tabla pivote
+        $task->files()->detach();
+
+        // Eliminar la tarea
+        $task->delete();
+
+        DB::commit();
+
+        return response()->json(['message' => 'Actividad eliminada correctamente'], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Error al eliminar la actividad',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }
