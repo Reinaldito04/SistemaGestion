@@ -35,6 +35,8 @@ return new class extends Migration
             ->constrained('sectors')
             ->onDelete('restrict');
 
+        $table->timestamp('deadline_at')->nullable();
+
         // Campos de fecha
         $table->timestamp('executed_at')->nullable();
         $table->timestamp('approved_at')->nullable();

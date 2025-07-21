@@ -40,7 +40,7 @@ class TaskController extends Controller
 
     // 🔎 Columnas buscables y filtrables por periodo
     $searchableColumns = ['id', 'title', 'description'];
-    $searchablePeriodColumns = ['created_at', 'executed_at', 'approved_at', 'canceled_at'];
+    $searchablePeriodColumns = ['created_at', 'executed_at', 'approved_at', 'canceled_at', 'deadline_at'];
 
     $query = Task::query()->with('files'); 
 
@@ -118,6 +118,7 @@ public function store(Request $request)
         'description' => ['nullable', 'string', 'max:2500'],
         'article_id' => ['required', 'exists:articles,id'],
         'sector_id' => ['required', 'exists:sectors,id'],
+        'deadline_at' => ['nullable', 'date'],
     ]);
 
     $user = auth()->user();
@@ -128,6 +129,7 @@ public function store(Request $request)
         'created_by' => $user->id,
         'article_id' => $request->input('article_id'),
         'sector_id' => $request->input('sector_id'),
+        'deadline_at' => $request->input('deadline_at'),
     ]);
 
     // 🔗 Aquí agregamos al usuario como participante
@@ -191,6 +193,7 @@ public function update(Request $request,$id)
         'description' => ['nullable', 'string', 'max:2500'],
         'article_id' => ['required', 'exists:articles,id'],
         'sector_id' => ['required', 'exists:sectors,id'],
+        'deadline_at' => ['nullable', 'date'],
     ]);
 
     $task = Task::find($id);
@@ -213,6 +216,7 @@ public function update(Request $request,$id)
         'description' => $request->input('description'),
         'article_id' => $request->input('article_id'),
         'sector_id' => $request->input('sector_id'),
+        'deadline_at' => $request->input('deadline_at'),
     ]);
 
     return response()->json(['message' => 'Actividad actualizada correctamente', 'data' => $task], 200);
