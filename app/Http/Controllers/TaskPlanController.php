@@ -39,6 +39,40 @@ use ControllerTrait;
     $query = TaskPlan::query(); 
 
     $query =  $query->with(['participants']) ;
+
+    if ($filterCreatedBy = $request->input('filter_created_by')) {
+            $query->where('created_by', $filterCreatedBy);
+        }
+
+
+    if ($filterAuditedBy = $request->input('filter_audited_by')) {
+        $query->where('audited_by', $filterAuditedBy);
+    }
+
+      if ($participantIds = $request->input('filter_participant_ids')) {
+        $query->whereHas('participants', function ($q) use ($participantIds) {
+            $q->whereIn('users.id', $participantIds);
+        });
+    }
+
+     if ($filterSectorId = $request->input('filter_sector_id')) {
+        $query->where('sector_id', $filterSectorId);
+    }
+
+     if ($filterPlantId = $request->input('filter_plant_id')) {
+        $query->whereHas('sector.plant', function ($q) use ($filterPlantId) {
+            $q->where('id', $filterPlantId);
+        });
+    }
+
+        if ($filterAreaId = $request->input('filter_area_id')) {
+        $query->whereHas('sector.plant.area', function ($q) use ($filterAreaId) {
+            $q->where('id', $filterAreaId);
+        });
+    }
+
+
+
     // 🔍 Búsqueda libre y filtros de fecha (period_filters[])
     $query = $this->find($request, $query, $searchableColumns, $searchablePeriodColumns);
 
