@@ -58,6 +58,15 @@ class UsersTableSeeder extends Seeder
                 'password'          => bcrypt('123456789'),
                 'role'          => 'superadministrador',
             ],
+
+              [
+                'id'                => 5,
+                'name'              => 'SISTEMA',
+                'email'             => 'sistema@sistema.net.ve',
+                'email_verified_at' => $now,
+                'password'          =>  bcrypt('123456789'),
+                'role'          => 'superadministrador',
+            ],
         ];
 
         $this->command->getOutput()->progressStart(count($data));

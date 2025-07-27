@@ -18,6 +18,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HelpDeskController;
 use App\Http\Controllers\RabbitMQController;
+use App\Http\Controllers\TaskPlanController;
 use App\Http\Controllers\PermisionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ArticleTypeController;
@@ -155,6 +156,15 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
         
       
+    });
+
+      Route::group(['prefix' => 'task-plans'], function() {
+
+        Route::get('/', [TaskPlanController::class, 'index']);
+        Route::get('/{id}', [TaskPlanController::class, 'show']);
+        Route::post('/', [TaskPlanController::class, 'store']);
+        Route::put('/{id}', [TaskPlanController::class, 'update']);
+        Route::delete('/{id}', [TaskPlanController::class, 'destroy']);
     });
 
 

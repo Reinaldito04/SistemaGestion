@@ -209,4 +209,9 @@ public function approveBy(User $user)
                     ->withTimestamps();
     }
 
+    public function plan()
+{
+    return $this->belongsTo(TaskPlan::class, 'task_plan_id');
+}
+
 }

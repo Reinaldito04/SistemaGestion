@@ -37,6 +37,12 @@ return new class extends Migration
 
         $table->timestamp('deadline_at')->nullable();
 
+         $table->foreignId('task_plan_id')
+                ->nullable()
+                ->constrained('task_plans')
+                ->onDelete('set null')
+                ->after('id'); 
+
         // Campos de fecha
         $table->timestamp('executed_at')->nullable();
         $table->timestamp('approved_at')->nullable();
