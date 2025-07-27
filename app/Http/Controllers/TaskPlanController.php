@@ -11,6 +11,14 @@ class TaskPlanController extends Controller
 
 use ControllerTrait;
 
+ public function __construct() {
+
+        $this->middleware('permission:task_plans-browse', ['only' => ['index']]);
+        $this->middleware('permission:task_plans-read', ['only' => ['show']]);
+        $this->middleware('permission:task_plans-edit', ['only' => ['update']]);
+        $this->middleware('permission:task_plans-delete', ['only' => ['destroy']]);
+    }
+
      public function index(Request $request)
 {
     // ⚙️ Validación de filtros
@@ -30,7 +38,7 @@ use ControllerTrait;
 
     $query = TaskPlan::query(); 
 
-   
+    $query =  $query->with(['participants']) ;
     // 🔍 Búsqueda libre y filtros de fecha (period_filters[])
     $query = $this->find($request, $query, $searchableColumns, $searchablePeriodColumns);
 
@@ -77,6 +85,10 @@ public function store(Request $request)
     $data['created_by'] = auth()->id();
 
     $model = TaskPlan::create($data);
+
+     $user = auth()->user();
+
+     $model->participants()->syncWithoutDetaching([$user->id]);
 
     return response()->json(['data' => $model], 201);
 }
@@ -128,6 +140,8 @@ public function update(Request $request, $id)
         public function show($id)
     {
         $query = TaskPlan::query(); 
+
+        $query->with(['participants']);
         try {
             $data = $this->retrieveById($query, $id);
             return response()->json(['data' => $data->toArray()]);
@@ -150,6 +164,48 @@ public function update(Request $request, $id)
     }
 
     return response()->json(['message' => 'Planificación eliminada correctamente']);
+}
+
+
+public function asignarParticipantes(Request $request)
+{
+    $request->validate([
+        'task_plan_id' => ['required', 'exists:task_plans,id'],
+        'user_ids' => ['required', 'array', 'min:1'],
+        'user_ids.*' => ['exists:users,id'],
+    ]);
+
+    $taskPlan = TaskPlan::findOrFail($request->task_plan_id);
+
+
+    $taskPlan->participants()->syncWithoutDetaching($request->user_ids);
+
+    return response()->json(['message' => 'Participantes asignados correctamente'], 200);
+}
+
+public function revocarParticipantes(Request $request)
+{
+    $request->validate([
+        'task_plan_id' => ['required', 'exists:task_plans,id'],
+        'user_ids' => ['required', 'array', 'min:1'],
+        'user_ids.*' => ['exists:users,id'],
+    ]);
+
+    $taskPlan = TaskPlan::findOrFail($request->task_plan_id);
+
+
+
+    $currentIds = $taskPlan->participants()->pluck('users.id')->toArray();
+    $revocarIds = array_intersect($currentIds, $request->user_ids);
+    $remaining = array_diff($currentIds, $revocarIds);
+
+    if (count($remaining) < 1) {
+        return response()->json(['error' => 'Debe quedar al menos un participante asignado a la planificación'], 422);
+    }
+
+    $taskPlan->participants()->detach($revocarIds);
+
+    return response()->json(['message' => 'Participantes revocados correctamente'], 200);
 }
     
 }

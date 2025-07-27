@@ -25,6 +25,7 @@ return [
               'iers' => 'b,r,e,a,d',
               'areas' => 'b,r,e,a,d',
               'tasks' => 'b,r,e,a,d,s',
+              'task_plans' => 'b,r,e,a,d',
 
         ],
         'administrador' => [
@@ -39,6 +40,9 @@ return [
             'files' => 'b,r,e,a,d',
             'iers' => 'b,r,e,a,d',
             'areas' => 'b,r,e,a,d',
+             'task_plans' => 'b,r,e,a,d',
+            'tasks' => 'b,r,e,a,d,s',
+
 
 
         ],
@@ -55,6 +59,8 @@ return [
             'iers' => 'b,r',
             'areas' => 'b,r',
             'tasks' => 'b,r,e,a,d,s',
+            'task_plans' => 'b,r,e,a,d',
+
 
 
         ],

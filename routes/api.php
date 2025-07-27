@@ -158,14 +158,18 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
       
     });
 
-      Route::group(['prefix' => 'task-plans'], function() {
+     Route::group(['prefix' => 'task-plans'], function() {
 
-        Route::get('/', [TaskPlanController::class, 'index']);
-        Route::get('/{id}', [TaskPlanController::class, 'show']);
-        Route::post('/', [TaskPlanController::class, 'store']);
-        Route::put('/{id}', [TaskPlanController::class, 'update']);
-        Route::delete('/{id}', [TaskPlanController::class, 'destroy']);
-    });
+    Route::get('/', [TaskPlanController::class, 'index']);
+    Route::get('/{id}', [TaskPlanController::class, 'show']);
+    Route::post('/', [TaskPlanController::class, 'store']);
+    Route::put('/{id}', [TaskPlanController::class, 'update']);
+    Route::delete('/{id}', [TaskPlanController::class, 'destroy']);
+
+    // Rutas para gestión de participantes
+    Route::post('/assign-participants', [TaskPlanController::class, 'asignarParticipantes']);
+    Route::post('/revoke-participants', [TaskPlanController::class, 'revocarParticipantes']);
+});
 
 
         Route::group(['prefix' => 'tasks'], function() {
