@@ -27,9 +27,10 @@ use ControllerTrait;
        'filter_audited_by' => 'nullable|integer|exists:users,id',
        'filter_participant_ids' => 'nullable|array',
        'filter_participant_ids.*' => 'integer|exists:users,id',
-       'filter_status' => 'nullable|string|in:En proceso,Ejecutado,Aprobado,Cancelado',
        'filter_sector_id' => 'nullable|integer|exists:sectors,id',
-     
+       'filter_plant_id' => 'nullable|integer|exists:plants,id',
+       'filter_area_id' => 'nullable|integer|exists:areas,id',
+
     ]);
 
     // 🔎 Columnas buscables y filtrables por periodo
