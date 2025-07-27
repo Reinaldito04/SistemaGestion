@@ -183,6 +183,9 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/decline', [TaskController::class, 'cancelarActividad']);
         Route::post('/approve', [TaskController::class, 'approveActivity']);
         Route::post('/execute', [TaskController::class, 'executeActivity']); 
+         // Rutas para gestión de participantes
+        Route::post('/assign-participants', [TaskPlanController::class, 'asignarParticipantes']);
+        Route::post('/revoke-participants', [TaskPlanController::class, 'revocarParticipantes']);
         Route::post('/{id}/comments', [TaskController::class, 'addComments']);
         Route::post('/assign-files', [TaskController::class, 'uploadFiles']);       
         Route::post('/delete-files', [TaskController::class, 'deleteFiles']);
