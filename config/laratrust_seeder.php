@@ -26,6 +26,7 @@ return [
               'areas' => 'b,r,e,a,d',
               'tasks' => 'b,r,e,a,d,s',
               'task_plans' => 'b,r,e,a,d',
+              'backups' => 'b,r,e,a,d',
 
         ],
         'administrador' => [
@@ -42,6 +43,7 @@ return [
             'areas' => 'b,r,e,a,d',
              'task_plans' => 'b,r,e,a,d',
             'tasks' => 'b,r,e,a,d,s',
+            'backups' => 'b,r,e,a,d',
 
 
 

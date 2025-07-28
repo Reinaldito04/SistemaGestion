@@ -11,6 +11,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ProductController;
@@ -193,6 +194,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
         Route::delete('/{id}', [TaskController::class, 'destroy']);
     });
+
+    Route::group(['prefix' => 'backup'], function() {
+        Route::get('/download-sql', [BackupController::class, 'downloadSQL']);
+    });
+    
 
 });
 
