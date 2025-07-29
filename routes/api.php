@@ -164,6 +164,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('/', [TaskPlanController::class, 'index']);
     Route::get('/{id}', [TaskPlanController::class, 'show']);
     Route::post('/', [TaskPlanController::class, 'store']);
+    Route::post('/check', [TaskPlanController::class, 'checkTaskPlans']);
     Route::put('/{id}', [TaskPlanController::class, 'update']);
     Route::delete('/{id}', [TaskPlanController::class, 'destroy']);
 

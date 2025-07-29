@@ -17,8 +17,14 @@ class Task extends Model
         'title',
         'description',
         'created_by',
+        'audited_by',
         'article_id',
         'sector_id',
+        'deadline_at',
+        'task_plan_id',
+        'executed_at',
+        'approved_at',
+        'canceled_at',
     ];
 
     protected $appends = [

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TaskPlan;
 use Illuminate\Http\Request;
 use App\Traits\ControllerTrait;
+use Illuminate\Support\Facades\Artisan;
 
 class TaskPlanController extends Controller
 {
@@ -242,6 +243,28 @@ public function revocarParticipantes(Request $request)
 
     return response()->json(['message' => 'Participantes revocados correctamente'], 200);
 }
+
+
+
+ public function checkTaskPlans(Request $request)
+    {
+        try {
+            // Ejecuta el comando sin parámetros
+            $exitCode = Artisan::call('app:create-tasks-from-task-plans');
+            $output = Artisan::output();
+
+            return response()->json([
+                'message' => 'Checkeo y creación de actividades realizado con éxito.',
+                'exit_code' => $exitCode,
+                'output' => $output,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al ejecutar el comando de creación de actividades.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     
 }
 
