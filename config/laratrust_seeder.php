@@ -77,7 +77,7 @@ return [
             'articles' => 'b,r',
             'files' => 'b,r',
             'areas' => 'b,r',
-
+            'tasks' => 'b,r,e,a,d',
 
         ],
     ],
